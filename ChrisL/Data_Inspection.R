@@ -1,0 +1,139 @@
+rm(list = ls())
+library(stringr)
+library(rgl)
+library(dplyr)
+X_train = read.table('Xtrain.txt',sep = ' ',header = TRUE)
+X_test = read.table('Xtest.txt',sep = ' ',header = TRUE)
+Y_train = read.table('Ytrain.txt',sep = ' ',header = TRUE)
+Y_test = read.table('Ytest.txt',sep = ',',header = TRUE)
+
+
+get_matrix = function(result,Ytest){
+  # This function automately get prediction result from the corresponding column in the full prediciton dataset
+  # Input: A 50000*(15+1) prediction matrix and the original Ytest dataset
+  # Output: A 50000*2 prediction matrix
+  # Required library: stringr
+  prediction_df = Ytest
+  value = strsplit(prediction_df$Id,":")
+  prediction_df$column = as.numeric(str_extract(sapply(value,'[',2),'\\d+'))
+  for (i in 1:nrow(Ytest)) {
+    prediction_df[i,'Value'] = result[i, prediction_df$column[i]]
+  }
+  prediction_df$column = NULL
+  return(prediction_df)
+}
+
+# Column B15 is character but it should be numeric,
+# Fill NaN with median in each row
+# If we don't fill NaN, filter() will filter out NaN. We will get 63,235 rows at the end(start with 153,287).
+# If we use fill NaN, we will have 147,006 rows at the end.
+# But filling the function using median will bump up the count of the median bar(in histogram) quiet a lot.
+X_train_filled = X_train %>% mutate(B15 = as.numeric(B15)) %>% mutate_all(funs(ifelse(is.na(.),median(., na.rm = TRUE),.)))
+
+# 1st visualization
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# After some investigation, we can clearly see that all columns come from some distribution(Normal or Uniform mostly, some indicator function)
+# Since the data is simulated, we can safely delete some extreme outliers
+# After some data inspection, we can clearly see that the "EXTREME OUTLIERS" are "PERFECT NUMBERS"(some are 9)
+# TODO: May choose to delete or change by median, but I will delete the observations first, since there're so many data
+
+# 1.Filter out A01 < -5, and A01 > 5
+filter(X_train_filled, A01 < (-5))
+filter(X_train_filled, A01 > (5))    ####################### This is very strange #################
+X_train_modified = filter(X_train_filled, A01 > (-5), A01 < 5)
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+
+# 2.Filter out A02 < -5
+filter(X_train_modified, A02 < (-5))
+X_train_modified2 = filter(X_train_modified, A02 > (-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified2[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+
+# 3.Filter out B01 < -5
+filter(X_train_modified2,B01 < (-5))
+X_train_modified3 = filter(X_train_modified2,B01 > (-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified3[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# 4.Filter out B02 < -5
+filter(X_train_modified3,B02<(-5))
+X_train_modified4 = filter(X_train_modified3,B02 > (-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified4[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# 5.Filter out B03 < -5
+filter(X_train_modified4,B03<(-5))
+X_train_modified5 = filter(X_train_modified4,B03>(-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified5[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# 6.Filter out B04 < -5
+filter(X_train_modified5,B04<(-5))
+X_train_modified6 = filter(X_train_modified5,B04>(-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified6[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# 7.Filter out B05 < -5
+filter(X_train_modified6,B05 < (-5))
+X_train_modified7 = filter(X_train_modified6,B05>(-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified7[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# 8.Filter out B06 < -5
+filter(X_train_modified7,B06< (-5))
+X_train_modified8 = filter(X_train_modified7,B06>(-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified8[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# 9.Filter out B07 < -5
+filter(X_train_modified8,B07 < (-5))
+X_train_modified9 = filter(X_train_modified8,B07>(-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified9[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+# 10.Filter out B08 < -5
+filter(X_train_modified9,B08 < (-5))
+X_train_modified10 = filter(X_train_modified9,B08>(-5))
+# Clear all plots
+dev.off(dev.list()["RStudioGD"])
+for (i in 1:ncol(X_train)) {
+  hist(as.numeric(X_train_modified10[,i]),main = paste0("variable ",colnames(X_train)[i]))  
+}
+
+##### TODO: F03, F04, F05 is very strange, use table to examine
+table(X_train_modified10$F03)
+table(X_train_modified10$F04)
+table(X_train_modified10$F05)
