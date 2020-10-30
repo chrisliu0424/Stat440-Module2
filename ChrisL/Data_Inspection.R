@@ -134,10 +134,10 @@ for (i in 1:ncol(X_train)) {
 }
 
 # Set the final Training set as X_train_final
-X_train_final = X_train_modified10
+X_train_final = X_train_modified10 %>% select(-F09,-F10,-F11,-F12,-G01,-G02,-G03)
 
 # Getting the Y_train the same dimension as X_train
-Y_train_final = Y_train[Y_train$Id %in% X_train_final$Id,]
+Y_train_final = Y_train[Y_train$Id %in% X_train_final$Id,] 
 
 
 # Deal with the testing set
