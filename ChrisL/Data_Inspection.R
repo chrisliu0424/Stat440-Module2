@@ -133,7 +133,43 @@ for (i in 1:ncol(X_train)) {
   hist(as.numeric(X_train_modified10[,i]),main = paste0("variable ",colnames(X_train)[i]))  
 }
 
+# Set the final Training set as X_train_final
+X_train_final = X_train_modified10
+
+# Getting the Y_train the same dimension as X_train
+Y_train_final = Y_train[Y_train$Id %in% X_train_final$Id,]
+
+
+# Deal with the testing set
+# We will fillna by the median of the corresponding columns in the training set
+# We will replace extrame value with the median of the training setm
+train_medians = apply(X_train_final,2,median)
+# means = apply(X_train_final,2,mean)     #### I think median is better because they are very similar, but the last few predictors are indicator variable(0,1)
+summary(X_test)
+
+# We will delete the last 7 columns by now, because it's -9 everywhere in the X_test. (F09,F10,F11,F12,G01,G02,G03)
+X_test_modified = select(X_test,-F09,-F10,-F11,-F12,-G01,-G02,-G03)
+
+# Fill na with the train medians 
+for (i in 1:ncol(X_test_modified)) {
+  X_test_modified[is.na(X_test_modified[,i]),i] = train_medians[i]  
+}
+
+# Now replace -9 nad 9 in every columns by the median of that column
+for (i in 2:ncol(X_test_modified)) {
+  X_test_modified[X_test_modified[,i]<(-5),i] = train_medians[i]
+  X_test_modified[X_test_modified[,i]>5,i] = train_medians[i]
+}
+
+X_test_final = X_test_modified
+Y_test_final = Y_test[Y_test$Id %in% X_test_final$Id,]
+
 ##### TODO: F03, F04, F05 is very strange, use table to examine
 table(X_train_modified10$F03)
 table(X_train_modified10$F04)
 table(X_train_modified10$F05)
+
+write.csv(X_train_final,"X_train_clean.csv",row.names = FALSE)
+write.csv(X_test_final,"X_test_clean.csv",row.names = FALSE)
+write.csv(Y_train_final,"Y_train_clean.csv",row.names = FALSE)
+write.csv(Y_test_final,"Y_test_clean.csv",row.names = FALSE)
