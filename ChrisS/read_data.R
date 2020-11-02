@@ -10,8 +10,7 @@ Ytest_prompt = read.csv('data/Ytest.txt')
 
 
 if(trunc == 1){
-	Xtrain = head(Xtrain,100)
-	Ytrain = head(Ytrain,100)
-	Xtest = head(Xtest,100)
-	Ytest_prompt = head(Ytest_prompt)
+	Xtrain = head(Xtrain,500)
+	Ytrain = head(Ytrain,500)
+	Xtest = head(Xtest,500)
 }

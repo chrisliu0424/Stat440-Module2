@@ -3,7 +3,7 @@ y_names = names(Ytrain[,-1])[1]
 x_names = names(Xtrain[,-1])
 folds = 10
 seed = 5346342
-n_trees = 75
+n_trees = 200
 
 full_train = cbind(Xtrain[,-1], Ytrain[,-1])
 
@@ -29,6 +29,22 @@ models = predictY(
 
 y = as.numeric(full_valid[,y_names])
 
-yhat_glm = as.numeric(as.data.frame(h2o.predict(models$glm, full_valid_h2o))$predict)
-yhat_rf = as.numeric(as.data.frame(h2o.predict(models$rf, full_valid_h2o))$predict)
-yhat_en = as.numeric(as.data.frame(h2o.predict(models$en, full_valid_h2o))$predict)
+yhats = as.data.frame(matrix(ncol = length(models), nrow = length(y)))
+names(yhats) = names(models)
+yhats$glm = as.numeric(as.data.frame(h2o.predict(models$glm, full_valid_h2o))$predict)
+yhats$rf = as.numeric(as.data.frame(h2o.predict(models$rf, full_valid_h2o))$predict)
+yhats$gbm = as.numeric(as.data.frame(h2o.predict(models$gbm, full_valid_h2o))$predict)
+yhats$en = as.numeric(as.data.frame(h2o.predict(models$en, full_valid_h2o))$predict)
+
+residuals = yhats
+for(i in 1:ncol(yhats)){
+	for(j in 1:nrow(yhats)){
+		residuals[j,i] = yhats[j,i] - y[j]
+	}
+}
+
+MSPEs = data.frame(matrix(ncol = length(models), nrow = 1))
+names(MSPEs) = names(models)
+for(i in 1:ncol(yhats)){
+	MSPEs[,i] = getMSPE(y, yhats[,i])
+}

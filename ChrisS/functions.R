@@ -13,6 +13,7 @@ predictY = function(
 		training_frame = full_train_h2o,
 		validation_frame = full_valid_h2o,
 		keep_cross_validation_predictions = TRUE,
+		score_each_iteration = TRUE,
 		nfolds = folds,
 		seed = seed,
 		family = "AUTO",
@@ -25,6 +26,20 @@ predictY = function(
 		training_frame = full_train_h2o,
 		validation_frame = full_valid_h2o,
 		keep_cross_validation_predictions = TRUE,
+		score_each_iteration = TRUE,
+		max_depth = 20,
+		nfolds = folds,
+		seed = seed,
+		ntrees = n_trees
+	)
+	gbm = h2o.gbm(
+		x = x_names,
+		y = y_names,
+		training_frame = full_train_h2o,
+		validation_frame = full_valid_h2o,
+		keep_cross_validation_predictions = TRUE,
+		score_each_iteration = TRUE,
+		max_depth = 20,
 		nfolds = folds,
 		seed = seed,
 		ntrees = n_trees
@@ -34,7 +49,11 @@ predictY = function(
 		y = y_names,
 		training_frame = full_train_h2o,
 		validation_frame = full_valid_h2o,
-		base_models = list(glm, rf)
+		base_models = list(glm, rf, gbm)
 	)
-	return(list(glm = glm,rf = rf,en = en))
+	return(list(glm = glm,rf = rf,gbm = gbm,en = en))
+}
+
+getMSPE = function(y, y_hat){
+	return(sum((y - y_hat)^2))
 }
