@@ -2,15 +2,16 @@ rm(list = ls())
 library(stringr)
 library(rgl)
 library(dplyr)
-X_train = read.table('Xtrain.txt',sep = ' ',header = TRUE)
-X_test = read.table('Xtest.txt',sep = ' ',header = TRUE)
-Y_train = read.table('Ytrain.txt',sep = ' ',header = TRUE)
-Y_test = read.table('Ytest.txt',sep = ',',header = TRUE)
+setwd("~/Documents/GitHub/Stat440-Module2/ChrisL/Data_Original/")
+X_train = read.table('~/Documents/GitHub/Stat440-Module2/ChrisL/Data_Original/Xtrain.txt',sep = ' ',header = TRUE)
+X_test = read.table('~/Documents/GitHub/Stat440-Module2/ChrisL/Data_Original/Xtest.txt',sep = ' ',header = TRUE)
+Y_train = read.table('~/Documents/GitHub/Stat440-Module2/ChrisL/Data_Original/Ytrain.txt',sep = ' ',header = TRUE)
+Y_test = read.table('~/Documents/GitHub/Stat440-Module2/ChrisL/Data_Original/Ytest.txt',sep = ',',header = TRUE)
 
 
 get_matrix = function(result,Ytest){
   # This function automately get prediction result from the corresponding column in the full prediciton dataset
-  # Input: A 50000*(15+1) prediction matrix and the original Ytest dataset
+  # Input: A 50000*(14+1) prediction matrix and the original Ytest dataset
   # Output: A 50000*2 prediction matrix
   # Required library: stringr
   prediction_df = Ytest
@@ -29,6 +30,7 @@ get_matrix = function(result,Ytest){
 # If we use fill NaN, we will have 147,006 rows at the end.
 # But filling the function using median will bump up the count of the median bar(in histogram) quiet a lot.
 X_train_filled = X_train %>% mutate(B15 = as.numeric(B15)) %>% mutate_all(funs(ifelse(is.na(.),median(., na.rm = TRUE),.)))
+X_test_filled = X_test %>% mutate(B15 = as.numeric(B15))
 
 # 1st visualization
 for (i in 1:ncol(X_train)) {
@@ -145,10 +147,9 @@ Y_train_final = Y_train[Y_train$Id %in% X_train_final$Id,]
 # We will replace extrame value with the median of the training setm
 train_medians = apply(X_train_final,2,median)
 # means = apply(X_train_final,2,mean)     #### I think median is better because they are very similar, but the last few predictors are indicator variable(0,1)
-summary(X_test)
 
 # We will delete the last 7 columns by now, because it's -9 everywhere in the X_test. (F09,F10,F11,F12,G01,G02,G03)
-X_test_modified = select(X_test,-F09,-F10,-F11,-F12,-G01,-G02,-G03)
+X_test_modified = select(X_test_filled,-F09,-F10,-F11,-F12,-G01,-G02,-G03)
 
 # Fill na with the train medians 
 for (i in 1:ncol(X_test_modified)) {
@@ -162,14 +163,14 @@ for (i in 2:ncol(X_test_modified)) {
 }
 
 X_test_final = X_test_modified
-Y_test_final = Y_test[Y_test$Id %in% X_test_final$Id,]
+str(X_test_final)
 
 ##### TODO: F03, F04, F05 is very strange, use table to examine
 table(X_train_modified10$F03)
 table(X_train_modified10$F04)
 table(X_train_modified10$F05)
 
-write.csv(X_train_final,"X_train_clean.csv",row.names = FALSE)
-write.csv(X_test_final,"X_test_clean.csv",row.names = FALSE)
-write.csv(Y_train_final,"Y_train_clean.csv",row.names = FALSE)
-write.csv(Y_test_final,"Y_test_clean.csv",row.names = FALSE)
+write.csv(X_train_final,"~/Documents/GitHub/Stat440-Module2/ChrisL/Data_cleaned/X_train_clean.csv",row.names = FALSE)
+write.csv(X_test_final,"~/Documents/GitHub/Stat440-Module2/ChrisL/Data_cleaned/X_test_clean.csv",row.names = FALSE)
+write.csv(Y_train_final,"~/Documents/GitHub/Stat440-Module2/ChrisL/Data_cleaned/Y_train_clean.csv",row.names = FALSE)
+write.csv(Y_test,"~/Documents/GitHub/Stat440-Module2/ChrisL/Data_cleaned/Y_test_clean.csv",row.names = FALSE)
