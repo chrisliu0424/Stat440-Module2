@@ -27,7 +27,7 @@ h2o.init()
 all_models = list()
 for(i in 1:length(unique(Ytest_prompt$y))){
 	print(paste0('Training Model for ',y_names[i]))
-	all_models[[i]] = trainModels(
+	models = trainModels(
 				full_train_h2o,
 				full_valid_h2o,
 				x_names, y_names[i],
