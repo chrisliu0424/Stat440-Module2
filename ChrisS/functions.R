@@ -1,10 +1,10 @@
 # Enter training and validation sets that include both
 # the X and Y sets and other parameters
-predictY = function(
+trainModels = function(
 			full_train_h2o, full_valid_h2o,
 			x_names, y_names,
 			folds, seed,
-			n_trees
+			n_trees, hidden_layers, n_epochs
 ){
 	# Models
 	glm = h2o.glm(
@@ -44,14 +44,26 @@ predictY = function(
 		seed = seed,
 		ntrees = n_trees
 	)
+	dl = h2o.deeplearning(
+		x = x_names,
+		y = y_names,
+		training_frame = full_train_h2o,
+		validation_frame = full_valid_h2o,
+		keep_cross_validation_predictions = TRUE,
+		score_each_iteration = TRUE,
+		nfolds = folds,
+		seed = seed,
+		hidden = hidden_layers,
+		epochs = n_epochs
+	)
 	en = h2o.stackedEnsemble(
 		x = x_names,
 		y = y_names,
 		training_frame = full_train_h2o,
 		validation_frame = full_valid_h2o,
-		base_models = list(glm, rf, gbm)
+		base_models = list(glm, rf, gbm, dl)
 	)
-	return(list(glm = glm,rf = rf,gbm = gbm,en = en))
+	return(list(glm = glm,rf = rf,gbm = gbm,dl = dl,en = en))
 }
 
 getMSPE = function(y, y_hat){

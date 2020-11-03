@@ -4,6 +4,9 @@ x_names = names(Xtrain[,-1])
 folds = 10
 seed = 5346342
 n_trees = 200
+hidden_layers = c(200,200)
+# Number of epochs for the deep learning model
+e = 100
 
 full_train = cbind(Xtrain[,-1], Ytrain[,-1])
 
@@ -19,22 +22,23 @@ h2o.init()
 	full_valid_h2o = as.h2o(full_valid)
 
 
-models = predictY(
+models = trainModels(
 			full_train_h2o,
 			full_valid_h2o,
 			x_names, y_names,
 			folds, seed,
-			n_trees = n_trees
+			n_trees = n_trees,
+			hidden_layers,
+			n_epochs = e
 )
 
 y = as.numeric(full_valid[,y_names])
 
 yhats = as.data.frame(matrix(ncol = length(models), nrow = length(y)))
 names(yhats) = names(models)
-yhats$glm = as.numeric(as.data.frame(h2o.predict(models$glm, full_valid_h2o))$predict)
-yhats$rf = as.numeric(as.data.frame(h2o.predict(models$rf, full_valid_h2o))$predict)
-yhats$gbm = as.numeric(as.data.frame(h2o.predict(models$gbm, full_valid_h2o))$predict)
-yhats$en = as.numeric(as.data.frame(h2o.predict(models$en, full_valid_h2o))$predict)
+for(i in 1:ncol(yhats)){
+	yhats[,i] = as.numeric(as.data.frame(h2o.predict(models[[i]], full_valid_h2o))$predict)
+}
 
 residuals = yhats
 for(i in 1:ncol(yhats)){
