@@ -16,7 +16,7 @@ trainModels = function(
 		score_each_iteration = TRUE,
 		nfolds = folds,
 		seed = seed,
-		family = "AUTO",
+		#family = "AUTO",
 		missing_values_handling = "MeanImputation",
 		remove_collinear_columns = TRUE
 	)
@@ -67,5 +67,5 @@ trainModels = function(
 }
 
 getMSPE = function(y, y_hat){
-	return(sum((y - y_hat)^2))
+	return(mean((y - y_hat)^2))
 }
