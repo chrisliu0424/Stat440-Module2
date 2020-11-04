@@ -27,6 +27,12 @@ h2o.init()
 full_train_h2o = as.h2o(full_train)
 full_valid_h2o = as.h2o(full_valid)
 
+Ytest_rf = Ytest_prompt
+Ytest_dl = Ytest_prompt
+Ytest_gbm = Ytest_prompt
+Ytest_glm = Ytest_prompt
+#Ytest_en = Ytest_prompt
+
 for(i in 1:length(y_names)){
 
 	print(paste0('Training Model for ',y_names[i]))
@@ -41,17 +47,29 @@ for(i in 1:length(y_names)){
 	)
 	print(paste0(y_names[i], ' Trained'))
 	print("Predicting ...")
-	Ytest_prompt = predictIds(Ytest_prompt, Xtest, y_names[i], models$rf)
+	Ytest_rf = predictIds(Ytest_rf, Xtest, y_names[i], models$rf)
+	Ytest_dl = predictIds(Ytest_dl, Xtest, y_names[i], models$dl)
+	Ytest_gbm = predictIds(Ytest_gbm, Xtest, y_names[i], models$gbm)
+	Ytest_glm = predictIds(Ytest_glm, Xtest, y_names[i], models$glm)
+#	Ytest_en = predictIds(Ytest_en, Xtest, y_names[i], models$en)
 	print(paste(
-			as.character(nrow(Ytest_prompt) - length(which(is.na(Ytest_prompt$Value)))),
+			as.character(nrow(Ytest_gbm) - length(which(is.na(Ytest_gbm$Value)))),
 			"Total Predicted;",
-			as.character(length(which(is.na(Ytest_prompt$Value)))),
+			as.character(length(which(is.na(Ytest_gbm$Value)))),
 			"Left to Predict"
 	))
 
 }
 print("Writing Predictions")
-Ytest_prompt$Id = gsub(':.*$','',Ytest_prompt$Id)
-write.csv(Ytest_prompt, "first_attempt.csv", quote = FALSE, row.names = FALSE)
+Ytest_rf$Id = gsub(':.*$','',Ytest_rf$Id)
+write.csv(Ytest_rf, "predictions_rf.csv", quote = FALSE, row.names = FALSE)
+Ytest_dl$Id = gsub(':.*$','',Ytest_dl$Id)
+write.csv(Ytest_dl, "predictions_dl.csv", quote = FALSE, row.names = FALSE)
+Ytest_gbm$Id = gsub(':.*$','',Ytest_gbm$Id)
+write.csv(Ytest_gbm, "predictions_gbm.csv", quote = FALSE, row.names = FALSE)
+Ytest_glm$Id = gsub(':.*$','',Ytest_glm$Id)
+write.csv(Ytest_glm, "predictions_glm.csv", quote = FALSE, row.names = FALSE)
+#Ytest_en$Id = gsub(':.*$','',Ytest_en$Id)
+#write.csv(Ytest_en, "predictions_en.csv", quote = FALSE, row.names = FALSE)
 
 h2o.shutdown()
