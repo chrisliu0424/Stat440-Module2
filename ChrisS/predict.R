@@ -28,6 +28,7 @@ full_train_h2o = as.h2o(full_train)
 full_valid_h2o = as.h2o(full_valid)
 
 for(i in 1:length(y_names)){
+
 	print(paste0('Training Model for ',y_names[i]))
 	models = trainModels(
 				full_train_h2o,
@@ -47,7 +48,10 @@ for(i in 1:length(y_names)){
 			as.character(length(which(is.na(Ytest_prompt$Value)))),
 			"Left to Predict"
 	))
+
 }
 print("Writing Predictions")
 Ytest_prompt = gsub(':.*$','',Ytest_prompt$Id)
 write.csv(Ytest_prompt, "first_attempt.csv", quote = FALSE, row.names = FALSE)
+
+h2o.shutdown()

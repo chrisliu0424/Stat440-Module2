@@ -64,3 +64,5 @@ for(k in 1:length(y_names)){
 		MSPEs[k,l] = getMSPE(full_valid[,y_names[k]], yhats[[k]][,l])
 	}
 }
+
+h2o.shutdown()
