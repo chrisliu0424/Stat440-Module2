@@ -62,13 +62,13 @@ for(i in 1:length(y_names)){
 }
 print("Writing Predictions")
 Ytest_rf$Id = gsub(':.*$','',Ytest_rf$Id)
-write.csv(Ytest_rf, "predictions_rf.csv", quote = FALSE, row.names = FALSE)
+write.csv(Ytest_rf, "all_predictions/rf.csv", quote = FALSE, row.names = FALSE)
 Ytest_dl$Id = gsub(':.*$','',Ytest_dl$Id)
-write.csv(Ytest_dl, "predictions_dl.csv", quote = FALSE, row.names = FALSE)
+write.csv(Ytest_dl, "all_predictions/dl.csv", quote = FALSE, row.names = FALSE)
 Ytest_gbm$Id = gsub(':.*$','',Ytest_gbm$Id)
-write.csv(Ytest_gbm, "predictions_gbm.csv", quote = FALSE, row.names = FALSE)
+write.csv(Ytest_gbm, "all_predictions/gbm.csv", quote = FALSE, row.names = FALSE)
 Ytest_glm$Id = gsub(':.*$','',Ytest_glm$Id)
-write.csv(Ytest_glm, "predictions_glm.csv", quote = FALSE, row.names = FALSE)
+write.csv(Ytest_glm, "all_predictions/glm.csv", quote = FALSE, row.names = FALSE)
 #Ytest_en$Id = gsub(':.*$','',Ytest_en$Id)
 #write.csv(Ytest_en, "predictions_en.csv", quote = FALSE, row.names = FALSE)
 
