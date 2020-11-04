@@ -2,30 +2,32 @@ library(h2o)
 source('read_data.R')
 source('functions.R')
 
+valid_fraction = 0.75
 
 y_names = names(Ytrain[,-1])
 x_names = names(Xtrain[,-1])
+
 folds = 10
 seed = 5346342
 n_trees = 200
 hidden_layers = c(200,200)
 # Number of epochs for the deep learning model
 e = 100
+ 
 
 full_train = cbind(Xtrain[,-1], Ytrain[,-1])
 
-ind = sample.int(round(nrow(Xtrain)*.8))
+# Split into training and validation set
+ind = head(sample.int(nrow(Xtrain)), round(nrow(Xtrain)*valid_fraction))
 full_valid = full_train[-ind,]
 full_train = full_train[ind,]
 
 h2o.init()
 
-	full_train_h2o = as.h2o(full_train)
-	full_valid_h2o = as.h2o(full_valid)
+full_train_h2o = as.h2o(full_train)
+full_valid_h2o = as.h2o(full_valid)
 
-
-all_models = list()
-for(i in 1:length(unique(Ytest_prompt$y))){
+for(i in 1:length(y_names)){
 	print(paste0('Training Model for ',y_names[i]))
 	models = trainModels(
 				full_train_h2o,
@@ -37,23 +39,14 @@ for(i in 1:length(unique(Ytest_prompt$y))){
 				n_epochs = e
 	)
 	print(paste0(y_names[i], ' Trained'))
-}
-names(all_models) = y_names
-
-Ytest_prompt$Value = numeric(nrow(Ytest_prompt))
-print("Predicting")
-for(i in 1:nrow(Ytest_prompt)){
-	Ytest_prompt$Value[i] = as.numeric(as.data.frame(
-			h2o.predict(all_models[[Ytest_prompt$y[i]]]$en, as.h2o(
-							Xtest[which(Xtest$Id == Ytest_prompt$Id[i])]
-			))
+	print("Predicting ...")
+	Ytest_prompt = predictIds(Ytest_prompt, Xtest, y_names[i], models$en)
+	print(paste(
+			as.character(nrow(Ytest_prompt) - length(is.na(Ytest_prompt$Value))),
+			"Total Predicted;",
+			as.character(length(is.na(Ytest_prompt$Value))),
+			"Left to Predict"
 	))
 }
-
-Ytest_prompt$Id = paste0(as.character(Ytest_prompt$Id),Ytest_prompt$y)
-
-print('Writing Results')
-Ytest_prompt = Ytest_prompt[,1:2]
-print('Done')
-
+print("Writing Predictions")
 write.csv(Ytest_prompt, "first_attempt.csv", quote = FALSE, row.names = FALSE)

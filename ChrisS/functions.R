@@ -69,3 +69,16 @@ trainModels = function(
 getMSPE = function(y, y_hat){
 	return(mean((y - y_hat)^2))
 }
+
+# Takes in the column to predict and that
+# model designated for that column, then
+# returns the updates Ytest with the predicted
+# values
+predictIds = function(Ytest, Xtest, column, h2o_model){
+	inds = grep(column,Ytest$Id)
+	ids = as.numeric(gsub(':.*$','',Ytest$Id[inds]))
+	Xtest = as.h2o(Xtest[which(Xtest$Id %in% ids),])
+	y_hat = as.numeric(as.data.frame(h2o.predict(h2o_model, Xtest))$predict)
+	Ytest$Value[inds] = y_hat
+	return(Ytest)
+}
