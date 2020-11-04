@@ -41,7 +41,7 @@ for(i in 1:length(y_names)){
 	)
 	print(paste0(y_names[i], ' Trained'))
 	print("Predicting ...")
-	Ytest_prompt = predictIds(Ytest_prompt, Xtest, y_names[i], models$en)
+	Ytest_prompt = predictIds(Ytest_prompt, Xtest, y_names[i], models$rf)
 	print(paste(
 			as.character(nrow(Ytest_prompt) - length(which(is.na(Ytest_prompt$Value)))),
 			"Total Predicted;",
@@ -51,7 +51,7 @@ for(i in 1:length(y_names)){
 
 }
 print("Writing Predictions")
-Ytest_prompt = gsub(':.*$','',Ytest_prompt$Id)
+Ytest_prompt$Id = gsub(':.*$','',Ytest_prompt$Id)
 write.csv(Ytest_prompt, "first_attempt.csv", quote = FALSE, row.names = FALSE)
 
 h2o.shutdown()
