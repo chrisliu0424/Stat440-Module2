@@ -1,5 +1,5 @@
 # Set trunc to 0 if you don't want the data truncated
-trunc = 200
+trunc = 100
 print(paste('Trunc:',as.character(trunc)))
 
 

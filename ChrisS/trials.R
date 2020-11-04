@@ -4,7 +4,7 @@ source('functions.R')
 
 valid_fraction = 0.75
 
-y_names = names(Ytrain[,-1])
+y_names = names(Ytrain[,-1])[1]
 x_names = names(Xtrain[,-1])
 
 folds = 10
@@ -27,6 +27,8 @@ h2o.init()
 full_train_h2o = as.h2o(full_train)
 full_valid_h2o = as.h2o(full_valid)
 
+yhats = list()
+residuals = list()
 for(i in 1:length(y_names)){
 	print(paste0('Training Model for ',y_names[i]))
 	models = trainModels(
@@ -40,14 +42,25 @@ for(i in 1:length(y_names)){
 	)
 	print(paste0(y_names[i], ' Trained'))
 	print("Predicting ...")
-	Ytest_prompt = predictIds(Ytest_prompt, Xtest, y_names[i], models$en)
-	print(paste(
-			as.character(nrow(Ytest_prompt) - length(which(is.na(Ytest_prompt$Value)))),
-			"Total Predicted;",
-			as.character(length(which(is.na(Ytest_prompt$Value)))),
-			"Left to Predict"
-	))
+	
+	yhats[[i]] = as.data.frame(matrix(ncol = length(y_names), nrow = nrow(full_valid)))
+	residuals[[i]] = as.data.frame(matrix(ncol = length(y_names), nrow = nrow(full_valid)))
+	names(yhats)[i] = y_names[i]
+	names(residuals)[i] = y_names[i]
+	for(j in 1:length(models)){
+		yhats[[i]][,j] = as.numeric(as.data.frame(h2o.predict(models[[j]], full_valid_h2o))$predict)
+		residuals[[i]][,j] = yhats[[i]][,j] - full_valid[,y_names[i]]
+		names(yhats[[i]]) = names(models)
+		names(residuals[[i]]) = names(models)
+	}
 }
-print("Writing Predictions")
-Ytest_prompt = gsub(':.*$','',Ytest_prompt$Id)
-write.csv(Ytest_prompt, "first_attempt.csv", quote = FALSE, row.names = FALSE)
+
+
+MSPEs = as.data.frame(matrix(ncol = length(models), nrow = length(y_names)))
+names(MSPEs) = names(models)
+row.names(MSPEs) = y_names
+for(k in 1:length(y_names)){
+	for(l in 1:length(models)){
+		MSPEs[k,l] = getMSPE(full_valid[,y_names[k]], yhats[[k]][,l])
+	}
+}
