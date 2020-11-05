@@ -13,3 +13,5 @@ for (i in 1:14) {
   baseline_matrix[,i] = col_mean[i]
 }
 
+prediciton = get_matrix(baseline_matrix,Y_test)
+write.csv(prediciton,"baseline.csv",row.names = FALSE)
