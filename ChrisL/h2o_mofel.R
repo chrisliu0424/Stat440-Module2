@@ -22,7 +22,8 @@ train_hex = as.h2o(train_data)
 X_test_hex = as.h2o(X_test)
 prediction_matrix = matrix(NA,nrow = 50000,ncol = 14)
 for(i in 1:14){
-  gbm = h2o.gbm(x = 15:69,y = i, training_frame = train_hex, ntrees = 100, learn_rate = 0.01)
+  print(i)
+  gbm = h2o.gbm(x = 15:69,y = i, training_frame = train_hex, ntrees = 3000, learn_rate = 0.01)
   prediction = h2o.predict(gbm,newdata = X_test_hex)
   prediction_matrix[,i] = as.matrix(prediction)
 }
