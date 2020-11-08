@@ -33,11 +33,11 @@ start = Sys.time()
 for(i in 1:14){
   print(i)
   if(i == 2){
-    gbm = h2o.gbm(x = 15:69,y = 2, training_frame = train_hex, ntrees = 100000, learn_rate = 0.01,distribution = "bernoulli")  
+    gbm = h2o.gbm(x = 15:69,y = 2, training_frame = train_hex, ntrees = 100000, learn_rate = 0.001,distribution = "bernoulli")  
     prediction = h2o.predict(gbm,newdata = X_test_hex)
     prediction = as.numeric(prediction$predict)
   }else{
-    gbm = h2o.gbm(x = 15:69,y = i, training_frame = train_hex, ntrees = 100000, learn_rate = 0.01)  
+    gbm = h2o.gbm(x = 15:69,y = i, training_frame = train_hex, ntrees = 100000, learn_rate = 0.001)  
     prediction = h2o.predict(gbm,newdata = X_test_hex)
   }
   
