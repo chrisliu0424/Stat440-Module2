@@ -25,15 +25,15 @@ full_valid = full_train[-ind,]
 full_train = full_train[ind,]
 
 
+h2o.init()
+
+full_train_h2o = as.h2o(full_train)
+full_valid_h2o = as.h2o(full_valid)
 
 
 predictions = list()
 # For each response variable train a model and make predictions
 for(i in 1:length(y_names)){
-	h2o.init()
-
-	full_train_h2o = as.h2o(full_train)
-	full_valid_h2o = as.h2o(full_valid)
 
 	print(paste0('Training Model for ',y_names[i]))
 	models = trainModels(
@@ -59,7 +59,6 @@ for(i in 1:length(y_names)){
 		predictions[[j]][indeces,'Value'] = makeZPredictions(models[[j]], Xtest_h2o)
 	}
 	
-	h2o.shutdown()
 }
 names(predictions) = names(models)
 all_preds = cbind(Id = Ytest_prompt$Id, list.cbind(predictions)[,paste0(names(models),'.Value')])
@@ -83,3 +82,4 @@ for(i in 1:length(predictions)){
 	)
 }
 
+h2o.shutdown()

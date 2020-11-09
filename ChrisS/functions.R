@@ -8,6 +8,7 @@ trainModels = function(
 			n_trees, hidden_layers, n_epochs
 ){
 	# Models
+	print("GLM")
 	glm = h2o.glm(
 		x = x_names,
 		y = y_names,
@@ -21,6 +22,7 @@ trainModels = function(
 		missing_values_handling = "MeanImputation",
 		remove_collinear_columns = TRUE
 	)
+	print("RF")
 	rf = h2o.randomForest(
 		x = x_names,
 		y = y_names,
@@ -33,6 +35,7 @@ trainModels = function(
 		seed = seed,
 		ntrees = n_trees
 	)
+	print("GBM")
 	gbm = h2o.gbm(
 		x = x_names,
 		y = y_names,
@@ -45,6 +48,7 @@ trainModels = function(
 		seed = seed,
 		ntrees = n_trees
 	)
+	print("DL")
 	dl = h2o.deeplearning(
 		x = x_names,
 		y = y_names,
@@ -57,6 +61,7 @@ trainModels = function(
 		hidden = hidden_layers,
 		epochs = n_epochs
 	)
+	print("XGB")
 	xgb = h2o.xgboost(
 		x = x_names,
 		y = y_names,
@@ -66,17 +71,10 @@ trainModels = function(
 		normalize_type = "tree",
 		seed = seed
 	)
-	svm = h2o.psvm(
-		gamma = 0.01,
-		rank_ratio = 0.1,
-		y = y_names,
-		training_frame = full_train_h2o,
-		validation_frame = full_valid_h2o,
-		disable_training_metrics = TRUE
-	)
+	print("ISO")
 	iso = h2o.isolationForest(
+		x = x_names,
 		training_frame = full_train_h2o,
-		validation_frame = full_valid_h2o,
 		sample_rate = 0.1,
 		max_depth = 20,
 		ntrees = n_trees
@@ -89,7 +87,6 @@ trainModels = function(
 	            	gbm = gbm,
 	            	dl = dl,
 			xgb = xgb,
-			svm = svm,
 			iso = iso
 		)
 	)
