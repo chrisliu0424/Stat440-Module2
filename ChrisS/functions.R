@@ -79,17 +79,14 @@ trainModels = function(
 		max_depth = 20,
 		ntrees = n_trees
 	)
-	print("PCA")
-	pca = h2o.prcomp(
+	aml = h2o.automl(
 		x = x_names,
+		y = y_names,
 		training_frame = full_train_h2o,
-		k = 5,
-		use_all_factor_levels = TRUE,
-		pca_method = "GLRM",
-		transform = "STANDARDIZE",
-		impute_missing = TRUE
+		validation_frame = full_valid_h2o,
+		max_models = 20,
+		seed = seed
 	)
-	
 	return(
 		list(	
 			glm = glm,
@@ -98,7 +95,7 @@ trainModels = function(
 	            	dl = dl,
 			xgb = xgb,
 			iso = iso,
-			pca = pca
+			aml = aml
 		)
 	)
 }

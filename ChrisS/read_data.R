@@ -1,7 +1,7 @@
 seed = 5346342
 # Set trunc to 0 if you don't want the data truncated
 trunc = -1
-sample_size = 100
+sample_size = 10000
 print(paste(	'Trunc:',
 		as.character(trunc),
 		'| Sample Size:',
@@ -16,9 +16,9 @@ Xtest = read.csv('data/Xtest.csv')
 Ytest_prompt = read.csv('data/Ytest.txt')
 Ytest_prompt$Value = as.numeric(Ytest_prompt$Value)
 
-#ind = sample(1:nrow(Xtrain), size = sample_size)
-#Xtrain = Xtrain[ind,]
-#Ytrain = Ytrain[ind,]
+ind = sample(1:nrow(Xtrain), size = sample_size)
+Xtrain = Xtrain[ind,]
+Ytrain = Ytrain[ind,]
 
 print(paste('Dim Xtrain:',as.character(dim(Xtrain)[1]),'x',as.character(dim(Xtrain)[2])))
 print(paste('Dim Ytrain:',as.character(dim(Ytrain)[1]),'x',as.character(dim(Ytrain)[2])))
