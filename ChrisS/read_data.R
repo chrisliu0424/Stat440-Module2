@@ -1,7 +1,7 @@
 seed = 5346342
 # Set trunc to 0 if you don't want the data truncated
 trunc = -1
-sample_size = 10000
+sample_size = 5000
 print(paste(	'Trunc:',
 		as.character(trunc),
 		'| Sample Size:',
