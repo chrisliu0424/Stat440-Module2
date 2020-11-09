@@ -1,4 +1,5 @@
 library(h2o)
+library(rlist)
 source('read_data.R')
 source('functions.R')
 
@@ -31,13 +32,7 @@ full_train_h2o = as.h2o(full_train)
 full_valid_h2o = as.h2o(full_valid)
 Xtest_h2o = as.h2o(Xtest)
 
-
-yhats = as.data.frame(matrix(ncol = 1, nrow = nrow(Xtest)))
-names(yhats) = "Id"
-yhats$Id = Xtest$Id
-
-all_yhats = list()
-
+predictions = list()
 # For each response variable train a model and make predictions
 for(i in 1:length(y_names)){
 
@@ -52,23 +47,40 @@ for(i in 1:length(y_names)){
 				n_epochs = e
 	)
 	print(paste0(y_names[i], ' Trained'))
+	ids = getZIds(Ytest_prompt, y_names[i])
+	indeces = ids$indeces
+	ids = ids$ids
+	Xtest_h2o = as.h2o(Xtest[which(Xtest$Id %in% ids),])
 
 	print("Predicting ...")
 	for(j in 1:length(models)){
-		yhats = cbind(yhats, makeZPredictions(models[[j]], Xtest_h2o))
+		if(i == 1){
+			predictions[[j]] = Ytest_prompt
+		}
+		predictions[[j]][indeces,'Value'] = makeZPredictions(models[[j]], Xtest_h2o)
 	}
-	names(yhats)[2:(1+length(models))] = names(models)
-	yhats$mean_ensemble = rowMeans(yhats[,names(models)])
-
-	# Get separate matrices formed
-	all_yhats[[i]] = yhats
-	names(all_yhats)[i] = y_names[i]
+	
 }
-all_mats = list()
-for(i in 1:length())
+names(predictions) = names(models)
+all_preds = cbind(Id = Ytest_prompt$Id, list.cbind(predictions)[,paste0(names(models),'.Value')])
+predictions$means = Ytest_prompt
+
+for(i in 1:nrow(Ytest_prompt)){
+	predictions$means[i,'Value'] = mean(as.numeric(all_preds[i,2:ncol(all_preds)]))
+}
+
+for(i in 1:length(predictions)){
+	predictions[[i]][,'Id'] = gsub(':.*$','',predictions[[i]][,'Id'])
+}
 
 
 print("Writing Predictions")
-for(i in 1:length(all_yhats))
+for(i in 1:length(predictions)){
+	write.csv(	predictions[[i]], 
+			paste0('current_predictions/',names(predictions)[i],'.csv'),
+			quote = FALSE,
+			row.names = FALSE
+	)
+}
 
 h2o.shutdown()
