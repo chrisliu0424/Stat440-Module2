@@ -57,61 +57,40 @@ trainModels = function(
 		hidden = hidden_layers,
 		epochs = n_epochs
 	)
+	xgb = h2o.xgboost(
+		x = x_names,
+		y = y_names,
+		training_frame = full_train_h2o,
+		validation_frame = full_valid_h2o,
+		booster = "dart",
+		normalize_type = "tree",
+		seed = seed
+	)
+	svm = h2o.psvm(
+		gamma = 0.01,
+		rank_ratio = 0.1,
+		y = y_names,
+		training_frame = full_train_h2o,
+		validation_frame = full_valid_h2o,
+		disable_training_metrics = TRUE
+	)
+	iso = h2o.isolationForest(
+		training_frame = full_train_h2o,
+		validation_frame = full_valid_h2o,
+		sample_rate = 0.1,
+		max_depth = 20,
+		ntrees = n_trees
+	)
 	
-	#######################
-	### GBM Grid Search ###
-	#######################
-	# GBM Hyperparamters
-	learn_rate_opt <- c(0.01, 0.03)
-	max_depth_opt <- c(3, 4, 5, 6, 9)
-	sample_rate_opt <- c(0.7, 0.8, 0.9, 1.0)
-	col_sample_rate_opt <- c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8)
-	
-	hyper_params <- list(learn_rate = learn_rate_opt,
-	                     max_depth = max_depth_opt,
-	                     sample_rate = sample_rate_opt,
-	                     col_sample_rate = col_sample_rate_opt
-	)
-
-	search_criteria <- list(strategy = "RandomDiscrete",
-	                        max_models = 3,
-	                        seed = seed
-	)
-
-	gbm_grid <- h2o.grid(algorithm = "gbm",
-	                     grid_id = "gbm_grid_binomial",
-	                     x = x_names,
-	                     y = y_names,
-	                     training_frame = full_train_h2o,
-	                     ntrees = n_trees,
-	                     seed = seed,
-	                     nfolds = folds,
-	                     keep_cross_validation_predictions = TRUE,
-	                     hyper_params = hyper_params,
-	                     search_criteria = search_criteria
-	)
-
-	# Train a stacked ensemble using the GBM grid
-	ensemble <- h2o.stackedEnsemble(x = x_names,
-	                                y = y_names,
-	                                training_frame = full_train_h2o,
-	                                base_models = gbm_grid@model_ids)
-
-
-#	en = h2o.stackedEnsemble(
-#		x = x_names,
-#		y = y_names,
-#		training_frame = full_train_h2o,
-#		base_models = list(glm, rf, gbm, dl)
-#	)
 	return(
 		list(	
 			glm = glm,
 	            	rf = rf,
 	            	gbm = gbm,
 	            	dl = dl,
-			ensemble = ensemble
-	#           	en = en
+			xgb = xgb,
+			svm = svm,
+			iso = iso
 		)
 	)
 }
