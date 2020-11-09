@@ -1,4 +1,21 @@
 library(stringr)
+autoModels = function(
+		      full_train_h2o, full_valid_h2o,
+		      x_names, y_names, max_models,
+		      seed
+){
+	print("Training AMLs")
+	aml = h2o.automl(
+				x = x_names,
+			       	y = y_names,
+				training_frame = full_train_h2o,
+				validation_frame = full_valid_h2o,
+				max_models = max_models,
+				seed = seed	
+	)
+	return(aml@leader)
+}
+
 # Enter training and validation sets that include both
 # the X and Y sets and other parameters
 trainModels = function(

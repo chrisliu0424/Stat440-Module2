@@ -45,6 +45,12 @@ for(i in 1:length(y_names)){
 				hidden_layers,
 				n_epochs = e
 	)
+	models$aml = autoModels(
+				full_train_h2o,
+				full_valid_h2o,
+				x_names, y_names[i],
+				19, seed
+	)
 	print(paste0(y_names[i], ' Trained'))
 	ids = getZIds(Ytest_prompt, y_names[i])
 	indeces = ids$indeces
@@ -60,9 +66,9 @@ for(i in 1:length(y_names)){
 	}
 	
 	print(paste0(
-			as.character(length(which(is.na(predictions[[1]][,'Value'])))),
+			as.character(length(which(!is.na(predictions[[1]][,'Value'])))),
 			' Total Predicted | ',
-			as.character(length(which(is.na(predictions[[1]][,'Value']))) - nrow(predictions[[1]])),
+			as.character(nrow(predictions[[1]]) - length(which(!is.na(predictions[[1]][,'Value'])))),
 			' Left'
 	))
 	
