@@ -79,6 +79,16 @@ trainModels = function(
 		max_depth = 20,
 		ntrees = n_trees
 	)
+	print("PCA")
+	pca = h2o.prcomp(
+		x = x_names,
+		training_frame = full_train_h2o,
+		k = 5,
+		use_all_factor_levels = TRUE,
+		pca_method = "GLRM",
+		transform = "STANDARDIZE",
+		impute_missing = TRUE
+	)
 	
 	return(
 		list(	
@@ -87,7 +97,8 @@ trainModels = function(
 	            	gbm = gbm,
 	            	dl = dl,
 			xgb = xgb,
-			iso = iso
+			iso = iso,
+			pca = pca
 		)
 	)
 }

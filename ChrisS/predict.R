@@ -59,6 +59,13 @@ for(i in 1:length(y_names)){
 		predictions[[j]][indeces,'Value'] = makeZPredictions(models[[j]], Xtest_h2o)
 	}
 	
+	print(paste0(
+			as.character(length(is.na(predictions[[1]][,'Value']))),
+			' Total Predicted | ',
+			as.character(length(is.na(predictions[[1]][,'Value'])) - nrow(predictions[[1]])),
+			' Left'
+	))
+	
 }
 names(predictions) = names(models)
 all_preds = cbind(Id = Ytest_prompt$Id, list.cbind(predictions)[,paste0(names(models),'.Value')])
