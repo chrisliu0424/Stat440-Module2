@@ -92,8 +92,8 @@ trainModels = function(
 	)
 
 	# Train a stacked ensemble using the GBM grid
-	ensemble <- h2o.stackedEnsemble(x = x,
-	                                y = y,
+	ensemble <- h2o.stackedEnsemble(x = x_names,
+	                                y = y_names,
 	                                training_frame = full_train_h2o,
 	                                base_models = gbm_grid@model_ids)
 
