@@ -79,14 +79,6 @@ trainModels = function(
 		max_depth = 20,
 		ntrees = n_trees
 	)
-	aml = h2o.automl(
-		x = x_names,
-		y = y_names,
-		training_frame = full_train_h2o,
-		validation_frame = full_valid_h2o,
-		max_models = 20,
-		seed = seed
-	)
 	return(
 		list(	
 			glm = glm,
@@ -94,8 +86,7 @@ trainModels = function(
 	            	gbm = gbm,
 	            	dl = dl,
 			xgb = xgb,
-			iso = iso,
-			aml = aml
+			iso = iso
 		)
 	)
 }

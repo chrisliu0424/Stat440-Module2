@@ -60,9 +60,9 @@ for(i in 1:length(y_names)){
 	}
 	
 	print(paste0(
-			as.character(length(is.na(predictions[[1]][,'Value']))),
+			as.character(length(which(is.na(predictions[[1]][,'Value'])))),
 			' Total Predicted | ',
-			as.character(length(is.na(predictions[[1]][,'Value'])) - nrow(predictions[[1]])),
+			as.character(length(which(is.na(predictions[[1]][,'Value']))) - nrow(predictions[[1]])),
 			' Left'
 	))
 	
