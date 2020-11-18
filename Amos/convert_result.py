@@ -28,4 +28,4 @@ for i in range(results_final.shape[0]):
 
 
 y_test = y_test.drop(['d'], axis=1)
-y_test.to_csv("./results_kaggle_1.csv",header=True,index=False)
+y_test.to_csv("./results_kaggle_2.csv",header=True,index=False)
