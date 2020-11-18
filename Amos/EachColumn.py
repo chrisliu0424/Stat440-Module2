@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov 16 12:28:51 2020
-
-@author: wlian
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Sun Nov 15 13:08:12 2020
 
 @author: wlian
@@ -85,53 +78,18 @@ device = torch.device("cpu")
 if torch.cuda.is_available():
   device = torch.device("cuda:0")
 
-
-class LinearBlock(nn.Module):
-    def __init__(self,in_c,out_c):
-        super().__init__()
-        self.fc = nn.Linear(in_c, out_c)
-        self.norm = nn.BatchNorm1d(out_c)
-        self.relu = nn.ReLU(inplace=True)
-        self.do = nn.Dropout(0.1)
-        
-        self.fc1 = nn.Linear(out_c, out_c)
-        self.norm1 = nn.BatchNorm1d(out_c)
-        self.relu1 = nn.ReLU(inplace=True)
-        self.do1 = nn.Dropout(0.1)
-        
-        self.id = nn.Linear(in_c, out_c)
-        
-    def forward(self,x):
-        y = self.fc(x)
-        y = self.relu(y)
-        y = self.norm(y)
-        y = self.do(y)
-        
-        y = self.fc1(y)
-        y = self.relu1(y)
-        y = self.norm1(y)
-        y = self.do1(y)
-        
-        y = y + self.id(x)
-        return y
-
 class Net(nn.Module):
   def __init__(self, n_features):
     super(Net, self).__init__()
-    self.fc1 = LinearBlock(n_features,200).cuda()
-    self.fc2 = LinearBlock(200,200).cuda()
-    self.fc3 = LinearBlock(200,200).cuda()
-    self.fc4 = LinearBlock(200,200).cuda()
-    self.fc5 = LinearBlock(200,200).cuda()
-    self.fc6 = LinearBlock(200,200).cuda()
-    self.fc7 = nn.Linear(200, 14)
+    self.fc1 = nn.Linear(n_features, 100)
+    self.fc2 = nn.Linear(100, 200)
+    self.fc3 = nn.Linear(200, 100)
+    self.fc7 = nn.Linear(100, 1)
     
   def forward(self, x):
-    x = self.fc1(x)
-    x = self.fc2(x)
-    x = self.fc5(x)
-    x = self.fc6(x)
-    
+    x = F.relu(self.fc1(x))
+    x = F.relu(self.fc2(x))
+    x = F.relu(self.fc3(x))
     return self.fc7(x)
 
 
@@ -146,15 +104,17 @@ x_valid_tensor = torch.Tensor(np.array(x_valid))
 os.chdir("../Amos")
 criterion = nn.MSELoss()
 model = Net(x_train.shape[1]).cuda()
-optimizer = torch.optim.SGD(model.parameters(), lr = 0.0003,momentum=0.9,weight_decay=1e-03)
+optimizer = torch.optim.SGD(model.parameters(), lr = 0.0001,momentum=0.9,weight_decay=1e-05)
 
-
+column_i = 0
 model.train()
 model.cuda()
-y_tensor = y_train
+path = "./" + str(y_train.columns[column_i]) + ".pth" 
+y_tensor = y_train[y_train.columns[column_i]]
 y_tensor = torch.Tensor(np.array(y_tensor))
+y_valid_loop =y_valid[y_valid.columns[column_i]]
 
-epoch = 200
+epoch = 25
 
 train = TensorDataset(x_train_tensor,y_tensor)
 train_loader = DataLoader(train, batch_size = 256, shuffle = True)
@@ -165,7 +125,7 @@ for epoch in range(epoch):
         # Forward pass
         y_pred = model(x_batch.cuda())
         # Compute Loss
-        loss = criterion(y_pred, y_batch.cuda())
+        loss = criterion(y_pred, y_batch.cuda().unsqueeze(1))
        
         # Backward pass
         loss.backward()
@@ -174,37 +134,27 @@ for epoch in range(epoch):
         running_loss += loss.item()
     running_loss/=len(train_loader)
     print('Epoch {}: train loss: {}'.format(epoch, running_loss))
-    
-    if(epoch%5 == 0):
-        model.to('cpu')
-        model.eval()
-        y_valid_pred =  model(x_valid_tensor)
-        y_valid_pred = y_valid_pred.detach().numpy()
-        y_valid_pred = pd.DataFrame(y_valid_pred,columns=([y_valid.columns]))
-        mse = mean_squared_error(y_valid,y_valid_pred)
-        print('Result : MSE: {}'.format(mse))
-        model.cuda()
-        model.train()
 
 del y_tensor
 
 model.to('cpu')
-PATH = "./model" + ".pth" 
+PATH = str(y_train.columns[column_i])+".pth"
 torch.save(model.state_dict(), PATH)
 
 model.eval()
 y_predid = model(test)
 y_predid = y_predid.detach().numpy()
-y_predid = pd.DataFrame(y_predid,columns=([y_train.columns]))
+y_predid = pd.DataFrame(y_predid,columns=([str(y_train.columns[column_i])]))
 result = pd.concat([result.reset_index(drop=True), y_predid], axis=1)
 
 y_valid_pred =  model(x_valid_tensor)
 y_valid_pred = y_valid_pred.detach().numpy()
-y_valid_pred = pd.DataFrame(y_valid_pred,columns=([y_valid.columns]))
-mse = mean_squared_error(y_valid,y_valid_pred)
-print('Result : MSE: {}'.format(mse))
+col_name = "Z"+str(column_i+1)
+y_valid_pred = pd.DataFrame(y_valid_pred,columns=([col_name]))
+mse = mean_squared_error(y_valid_loop,y_valid_pred)
+print('Column {}: MSE: {}'.format(str(y_valid_pred.columns[0]), mse))
 
-result.to_csv("./results_full.csv",header=True,index=False)
+result.to_csv("./results.csv",header=True,index=False)
 del x_train_tensor
 del test
 del model
